@@ -1,32 +1,33 @@
 pipeline {
     agent {
         kubernetes {
+            // Define the pod template
             yaml '''
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    some-label: "build-pod"
+    some-label: build-pod
 spec:
+  serviceAccountName: my-jenkins
   containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:latest
+    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+
   - name: docker
     image: docker:19.03.12
     command:
     - cat
     tty: true
     volumeMounts:
-    - mountPath: /var/run/docker.sock
-      name: docker-sock
-    env:
-    - name: DOCKER_CONFIG
-      value: "/home/jenkins/.docker/"
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+
   volumes:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-  - name: docker-config
-    secret:
-      secretName: docker-registry-credentials
 '''
         }
     }
