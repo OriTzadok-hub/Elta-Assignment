@@ -2,7 +2,7 @@ pipeline {
     agent {
         kubernetes {
             // Define the pod template
-            yaml """
+            yaml '''
 apiVersion: v1
 kind: Pod
 metadata:
@@ -23,7 +23,7 @@ spec:
   - name: kaniko-secret
     secret:
       secretName: reg-credentials
-            """
+            '''
         }
     }
 
