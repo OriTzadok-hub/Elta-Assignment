@@ -9,7 +9,7 @@ metadata:
   labels:
     some-label: build-pod
 spec:
-  serviceAccountName: jenkins-agents
+  serviceAccountName: my-jenkins
   containers:
   - name: jnlp
     image: jenkins/inbound-agent:4.3-4
