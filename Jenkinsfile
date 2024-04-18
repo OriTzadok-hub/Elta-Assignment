@@ -98,7 +98,28 @@ spec:
             }
         }
         stage('Deploy to Kubernetes') {
-            agent any
+            agent {
+    kubernetes {
+        // Define the pod with kubectl ready
+        yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    some-label: kubectl-pod
+spec:
+  containers:
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    command:
+    - sh
+    args:
+    - '-c'
+    - 'sleep 999999d'  // Keep the container alive
+    tty: true
+'''
+    }
+}
             steps {
                 script {
                     withKubeConfig([credentialsId: 'kubeconfig-credentials']) {
