@@ -38,7 +38,6 @@ spec:
         IMAGE_TAG = 'latest'
         DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
-        KUBECTL_PATH = '/usr/local/bin/kubectl'
     }
 
     stages {
@@ -80,8 +79,8 @@ spec:
                 script {
                     withKubeConfig([credentialsId: 'kubeconfig-credentials']) {
                         // Apply Kubernetes manifests to the development namespace
-                        sh "${KUBECTL_PATH} apply -f Deployment/K8s/deployment.yaml -n dev-namespace"
-                        sh "${KUBECTL_PATH} -f Deployment/K8s/service.yaml -n dev-namespace"
+                        sh './kubectl apply -f Deployment/K8s/deployment.yaml -n dev-namespace'
+                        sh './kubectl apply -f Deployment/K8s/service.yaml -n dev-namespace'
                     }
                 }
             }
