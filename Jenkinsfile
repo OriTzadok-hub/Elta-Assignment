@@ -112,7 +112,7 @@ spec:
   containers:
   - name: kubectl
     image: lachlanevenson/k8s-kubectl:v1.18.0
-    command:
+    command: ['sh', '-c', 'sleep 999d']
     - cat
     tty: true
 '''
