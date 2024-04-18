@@ -105,6 +105,7 @@ spec:
                         // Apply Kubernetes manifests to the development namespace
                         sh 'kubectl apply -f Deployment/K8s/deployment.yaml -n dev-namespace'
                         sh 'kubectl apply -f Deployment/K8s/service.yaml -n dev-namespace'
+                    }
                 }
             }
         }
