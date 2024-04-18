@@ -38,6 +38,8 @@ spec:
         IMAGE_REPO = 'oriza/dotnetapp'
         IMAGE_TAG = 'latest'
         DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
+        DOCKER_HUB_USER = 'oriza'
+        DOCKER_HUB_PWD = credentials('dockerhub-credentials')
     }
 
     stages {
@@ -53,6 +55,7 @@ spec:
                     script {
                         sh 'dockerd &'
                         sleep 10 // Wait for Docker daemon to start
+                        sh 'echo $DOCKER_HUB_PWD | docker login --username $DOCKER_HUB_USER --password-stdin'
                         sh "docker build -t ${DOCKER_IMAGE} -f ./Deployment/DotNetApp/Dockerfile ./Deployment/DotNetApp"
                         sh "docker push ${DOCKER_IMAGE}"
                     }
