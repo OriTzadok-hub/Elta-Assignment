@@ -1,19 +1,6 @@
 pipeline {
-    agent none // No global agent, each stage will define its own
-
-    environment {
-        // Define repository and image details
-        REPO_URL = 'https://github.com/OriTzadok-hub/Elta-Assignment.git'
-        IMAGE_REPO = 'oriza/dotnetapp'
-        IMAGE_TAG = 'latest'
-        DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
-    }
-
-    stages {
-        stage('Checkout Code') {
-            agent {
-                kubernetes {
+    agent {
+        kubernetes {
                     // Define the pod template for checkout
                     yaml '''
 apiVersion: v1
@@ -42,46 +29,25 @@ spec:
     hostPath:
       path: /var/run/docker.sock
 '''
-                }
-            }
+        }
+    }
+    environment {
+        // Define repository and image details
+        REPO_URL = 'https://github.com/OriTzadok-hub/Elta-Assignment.git'
+        IMAGE_REPO = 'oriza/dotnetapp'
+        IMAGE_TAG = 'latest'
+        DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+    }
+
+    stages {
+        stage('Checkout Code') { 
             steps {
                 // Checkout the latest code from the main branch
                 git url: REPO_URL, branch: 'main', credentialsId: 'github'
             }
         }
         stage('Build Docker Image') {
-            agent {
-                kubernetes {
-                    // Reuse the pod template with the docker container
-                    yaml '''
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    some-label: build-pod
-spec:
-  serviceAccountName: my-jenkins
-  containers:
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
-
-  - name: docker
-    image: docker:19.03.12
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
-
-  volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
-'''
-                }
-            }
             steps {
                 container('docker') {
                     script {
@@ -97,29 +63,18 @@ spec:
                 }
             }
         }
+        stage('Prepare Environment') {
+            steps {
+                script {
+                    sh '''
+                    curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+                    chmod +x ./kubectl
+                    mv ./kubectl /usr/local/bin/kubectl
+                    '''
+                }
+            }
+        }
         stage('Deploy to Kubernetes') {
-            agent {
-    kubernetes {
-        // Define the pod with kubectl ready
-        yaml '''
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    some-label: kubectl-pod
-spec:
-  containers:
-  - name: kubectl
-    image: bitnami/kubectl:latest
-    command:
-    - sh
-    args:
-    - '-c'
-    - 'sleep 999999d'
-    tty: true
-'''
-    }
-}
             steps {
                 script {
                     withKubeConfig([credentialsId: 'kubeconfig-credentials']) {
