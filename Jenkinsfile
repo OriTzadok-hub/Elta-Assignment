@@ -13,7 +13,7 @@ spec:
   - name: kaniko
     image: gcr.io/kaniko-project/executor:latest
     args: ["--dockerfile=Deployment/DotNetApp/Dockerfile",
-           "--context=dir://$$(WORKSPACE)/Deployment/DotNetApp",
+           "--context=dir://$(WORKSPACE)/Deployment/DotNetApp",
            "--destination=oriza/dotnetapp:latest"]
     volumeMounts:
     - name: kaniko-secret
