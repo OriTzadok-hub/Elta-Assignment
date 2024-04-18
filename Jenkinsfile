@@ -115,7 +115,7 @@ spec:
     - sh
     args:
     - '-c'
-    - 'sleep 999999d'  // Keep the container alive
+    - 'sleep 999999d'
     tty: true
 '''
     }
