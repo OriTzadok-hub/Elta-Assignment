@@ -38,8 +38,7 @@ spec:
         IMAGE_REPO = 'oriza/dotnetapp'
         IMAGE_TAG = 'latest'
         DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
-        DOCKER_HUB_USER = 'oriza'
-        DOCKER_HUB_PWD = credentials('dockerhub-credentials')
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
     }
 
     stages {
@@ -47,6 +46,16 @@ spec:
             steps {
                 // Checkout the latest code from the main branch
                 git url: REPO_URL, branch: 'main', credentialsId: 'github'
+            }
+        }
+        stage('Docker Login') {
+            steps {
+                script {
+                    // This will use the credentials securely
+                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin'
+                    }
+                }
             }
         }
         stage('Build Docker Image') {
