@@ -18,7 +18,7 @@ pipeline {
         stage('Build image') {
           steps{
             script {
-              dockerImage = docker.build(IMAGE_NAME, './Deployment/DotNetApp' -f './Deployment/DotNetApp/Dockerfile')
+              dockerImage = docker.build(IMAGE_NAME, './Deployment/DotNetApp -f ./Deployment/DotNetApp/Dockerfile')
             }
           }
         }
