@@ -1,37 +1,10 @@
 pipeline {
-    agent {
-        kubernetes {
-            // Define the pod template
-            yaml '''
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    some-label: kaniko
-spec:
-  containers:
-  - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
-    args: ["--dockerfile=Deployment/DotNetApp/Dockerfile",
-           "--context=dir://$(WORKSPACE)/Deployment/DotNetApp",
-           "--destination=oriza/dotnetapp:latest",
-           "--verbosity=debug"]
-    volumeMounts:
-    - name: kaniko-secret
-      mountPath: /kaniko/.docker
-  restartPolicy: Never
-  volumes:
-  - name: kaniko-secret
-    secret:
-      secretName: docker-registry-credentials
-            '''
-        }
-    }
+    agent any
 
     environment {
         // Define repository and image details
         REPO_URL = 'https://github.com/OriTzadok-hub/Elta-Assignment.git'
-        IMAGE_REPO = 'oriza/dotnetapp'
+        IMAGE_NAME = 'oriza/dotnetapp'
         IMAGE_TAG = 'latest'
     }
 
@@ -42,13 +15,12 @@ spec:
                 git url: REPO_URL, branch: 'main', credentialsId: 'github'
             }
         }
-        stage('Build and Push Image') {
-            steps {
-                // Kaniko executes build and push in one step
-                container('kaniko') {
-                    sh 'echo Building and pushing Docker Image'
-                }
+        stage('Build image') {
+          steps{
+            script {
+              dockerImage = docker.build(IMAGE_NAME, 'Deployment/DotNetApp' -f 'Deployment/DotNetApp/Dockerfile')
             }
+          }
         }
         stage('Deploy to Kubernetes') {
             steps {
