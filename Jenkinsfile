@@ -98,31 +98,13 @@ spec:
             }
         }
         stage('Deploy to Kubernetes') {
-            agent {
-                kubernetes {
-                    // Define the pod with kubectl ready
-                    yaml '''
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    some-label: kubectl-pod
-spec:
-  serviceAccountName: my-jenkins
-  containers:
-  - name: kubectl
-    image: lachlanevenson/k8s-kubectl:v1.18.0
-    command: ['sh', '-c', 'sleep 999d']
-    - cat
-    tty: true
-'''
-                }
-            }
+            agent any
             steps {
                 script {
-                    // Apply Kubernetes manifests to the development namespace
-                    sh 'kubectl apply -f Deployment/K8s/deployment.yaml -n dev-namespace'
-                    sh 'kubectl apply -f Deployment/K8s/service.yaml -n dev-namespace'
+                    withKubeConfig([credentialsId: 'kubeconfig-credentials']) {
+                        // Apply Kubernetes manifests to the development namespace
+                        sh 'kubectl apply -f Deployment/K8s/deployment.yaml -n dev-namespace'
+                        sh 'kubectl apply -f Deployment/K8s/service.yaml -n dev-namespace'
                 }
             }
         }
