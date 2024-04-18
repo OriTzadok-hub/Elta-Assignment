@@ -86,12 +86,3 @@ spec:
             }
         }
     }
-
-    post {
-        always {
-            // Cleanup after the build
-            cleanWs()
-        }
-    }
-}
-
