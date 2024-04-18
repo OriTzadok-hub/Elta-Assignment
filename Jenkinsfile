@@ -108,6 +108,7 @@ metadata:
   labels:
     some-label: kubectl-pod
 spec:
+  serviceAccountName: my-jenkins
   containers:
   - name: kubectl
     image: lachlanevenson/k8s-kubectl:v1.18.0
