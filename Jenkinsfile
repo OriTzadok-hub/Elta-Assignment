@@ -12,7 +12,7 @@ spec:
   serviceAccountName: my-jenkins
   containers:
   - name: jnlp
-    image: jenkins/inbound-agent:4.13
+    image: jenkins/inbound-agent:latest
     args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
 
   - name: docker
