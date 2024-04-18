@@ -12,7 +12,7 @@ pipeline {
         stage('Checkout Code') {
             steps {
                 // Checkout the latest code from the master branch
-                git url: REPO_URL, credentialsId: 'github'
+                git url: REPO_URL, branch: 'main', credentialsId: 'github'
             }
         }
         stage('Build and Push Image') {
