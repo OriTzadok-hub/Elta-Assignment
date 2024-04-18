@@ -51,6 +51,8 @@ spec:
         stage('Docker Login') {
             steps {
                 script {
+                    sh 'dockerd &'
+                    sleep 10 // Wait for Docker daemon to start
                     // This will use the credentials securely
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin'
@@ -62,9 +64,6 @@ spec:
             steps {
                 container('docker') {
                     script {
-                        sh 'dockerd &'
-                        sleep 10 // Wait for Docker daemon to start
-                        sh 'echo $DOCKER_HUB_PWD | docker login --username $DOCKER_HUB_USER --password-stdin'
                         sh "docker build -t ${DOCKER_IMAGE} -f ./Deployment/DotNetApp/Dockerfile ./Deployment/DotNetApp"
                         sh "docker push ${DOCKER_IMAGE}"
                     }
