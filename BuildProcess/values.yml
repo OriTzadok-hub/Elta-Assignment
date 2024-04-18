@@ -1,0 +1,23 @@
+controller:
+  installPlugins:
+    - github:latest
+    - job-dsl:latest
+    - configuration-as-code:latest
+
+  envFrom:
+    - secretRef:
+        name: github-credentials
+
+  JCasC:
+    configScripts:
+      credentials: |
+        credentials:
+          system:
+            domainCredentials:
+              - credentials:
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: "github"
+                      username: ${GITHUB_USERNAME}
+                      password: ${GITHUB_TOKEN}
+                      description: "GitHub Credentials"

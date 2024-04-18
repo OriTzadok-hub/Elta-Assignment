@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "t0MRKNsGOgbWv4Uaa9S6hMPzB9B5l7ENx7W5yDt+NCA=",
+  "Source": "BasicNetCoreApp",
+  "BasePath": "_content/BasicNetCoreApp",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
