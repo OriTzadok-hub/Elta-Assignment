@@ -48,18 +48,6 @@ spec:
                 git url: REPO_URL, branch: 'main', credentialsId: 'github'
             }
         }
-        stage('Docker Login') {
-            steps {
-                script {
-                    sh 'dockerd &'
-                    sleep 10 // Wait for Docker daemon to start
-                    // This will use the credentials securely
-                    withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin'
-                    }
-                }
-            }
-        }
         stage('Build Docker Image') {
             steps {
                 container('docker') {
