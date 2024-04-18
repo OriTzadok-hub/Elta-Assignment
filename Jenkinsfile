@@ -1,5 +1,31 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            // Define the pod template
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    some-label: kaniko
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args: ["--dockerfile=Deployment/DotNetApp/Dockerfile",
+           "--context=dir://$(WORKSPACE)",
+           "--destination=oriza/dotnetapp:latest"]
+    volumeMounts:
+    - name: kaniko-secret
+      mountPath: /kaniko/.docker
+  restartPolicy: Never
+  volumes:
+  - name: kaniko-secret
+    secret:
+      secretName: reg-credentials
+            """
+        }
+    }
 
     environment {
         // Define repository and image details
@@ -11,18 +37,15 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                // Checkout the latest code from the master branch
+                // Checkout the latest code from the main branch
                 git url: REPO_URL, branch: 'main', credentialsId: 'github'
             }
         }
         stage('Build and Push Image') {
             steps {
-                dir('Deployment/DotNetApp') { // Navigate to the directory containing the Dockerfile
-                    script {
-                        // Build and push Docker image using tagged latest
-                        sh 'docker build -t ${IMAGE_REPO}:${IMAGE_TAG} .'
-                        sh 'docker push ${IMAGE_REPO}:${IMAGE_TAG}'
-                    }
+                // Kaniko executes build and push in one step
+                container('kaniko') {
+                    sh 'echo Building and pushing Docker Image'
                 }
             }
         }
