@@ -22,7 +22,7 @@ spec:
   volumes:
   - name: kaniko-secret
     secret:
-      secretName: reg-credentials
+      secretName: docker-registry-credentials
             '''
         }
     }
