@@ -18,6 +18,26 @@ controller:
                   - usernamePassword:
                       scope: GLOBAL
                       id: "github"
-                      username: ${GITHUB_USERNAME}
-                      password: ${GITHUB_TOKEN}
+                      username: "${GITHUB_USERNAME}"
+                      password: "${GITHUB_TOKEN}"
                       description: "GitHub Credentials"
+      jobs: |
+        jobs:
+          - script: >
+              pipelineJob('deploy-app') {
+                definition {
+                    cpsScm {
+                        scm {
+                            git {
+                                remote {
+                                    url 'https://github.com/OriTzadok-hub/Elta-Assignment.git'
+                                    credentialsId 'github'
+                                }
+                                branches '*/main'
+                                scriptPath 'Jenkinsfile'
+                            }
+                        }
+                    }
+                }
+              }
+
