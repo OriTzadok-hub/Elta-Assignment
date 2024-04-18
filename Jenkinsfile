@@ -38,6 +38,7 @@ spec:
         IMAGE_TAG = 'latest'
         DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        KUBECTL_PATH = '/usr/local/bin/kubectl'
     }
 
     stages {
@@ -69,6 +70,7 @@ spec:
                     sh '''
                     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
                     chmod +x ./kubectl
+                    mv ./kubectl ${KUBECTL_PATH}
                     sh '''
                 }
             }
@@ -78,8 +80,8 @@ spec:
                 script {
                     withKubeConfig([credentialsId: 'kubeconfig-credentials']) {
                         // Apply Kubernetes manifests to the development namespace
-                        sh 'kubectl apply -f Deployment/K8s/deployment.yaml -n dev-namespace'
-                        sh 'kubectl apply -f Deployment/K8s/service.yaml -n dev-namespace'
+                        sh "${KUBECTL_PATH} apply -f Deployment/K8s/deployment.yaml -n dev-namespace"
+                        sh "${KUBECTL_PATH} -f Deployment/K8s/service.yaml -n dev-namespace"
                     }
                 }
             }
