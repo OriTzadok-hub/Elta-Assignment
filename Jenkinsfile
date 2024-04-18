@@ -53,7 +53,7 @@ spec:
                     script {
                         sh 'dockerd &'
                         sleep 10 // Wait for Docker daemon to start
-                        sh "docker build -t ${DOCKER_IMAGE} ."
+                        sh "docker build -t ${DOCKER_IMAGE} -f ./Deployment/DotNetApp/Dockerfile ./Deployment/DotNetApp"
                         sh "docker push ${DOCKER_IMAGE}"
                     }
                 }
