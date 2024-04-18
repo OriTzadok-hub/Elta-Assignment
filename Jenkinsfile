@@ -1,11 +1,43 @@
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            // Define the pod template
+            yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    some-label: build-pod
+spec:
+  serviceAccountName: jenkins-agents
+  containers:
+  - name: jnlp
+    image: jenkins/inbound-agent:4.3-4
+    args: ['\$(JENKINS_SECRET)', '\$(JENKINS_NAME)']
+
+  - name: docker
+    image: docker:19.03.12
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
+
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+'''
+        }
+    }
 
     environment {
         // Define repository and image details
         REPO_URL = 'https://github.com/OriTzadok-hub/Elta-Assignment.git'
-        IMAGE_NAME = 'oriza/dotnetapp'
+        IMAGE_REPO = 'oriza/dotnetapp'
         IMAGE_TAG = 'latest'
+        DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
     }
 
     stages {
@@ -15,12 +47,17 @@ pipeline {
                 git url: REPO_URL, branch: 'main', credentialsId: 'github'
             }
         }
-        stage('Build image') {
-          steps{
-            script {
-              dockerImage = docker.build(IMAGE_NAME, './Deployment/DotNetApp -f ./Deployment/DotNetApp/Dockerfile')
+        stage('Build Docker Image') {
+            steps {
+                container('docker') {
+                    script {
+                        sh 'dockerd &'
+                        sleep 10 // Wait for Docker daemon to start
+                        sh "docker build -t ${DOCKER_IMAGE} ."
+                        sh "docker push ${DOCKER_IMAGE}"
+                    }
+                }
             }
-          }
         }
         stage('Deploy to Kubernetes') {
             steps {
