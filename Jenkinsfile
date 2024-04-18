@@ -98,7 +98,25 @@ spec:
             }
         }
         stage('Deploy to Kubernetes') {
-            agent any // Use the default agent that Jenkins provides on Kubernetes
+            agent {
+                kubernetes {
+                    // Define the pod with kubectl ready
+                    yaml '''
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    some-label: kubectl-pod
+spec:
+  containers:
+  - name: kubectl
+    image: lachlanevenson/k8s-kubectl:v1.18.0
+    command:
+    - cat
+    tty: true
+'''
+                }
+            }
             steps {
                 script {
                     // Apply Kubernetes manifests to the development namespace
