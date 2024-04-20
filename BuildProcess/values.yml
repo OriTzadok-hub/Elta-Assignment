@@ -3,10 +3,13 @@ controller:
     - github:latest
     - job-dsl:latest
     - configuration-as-code:latest
+    - kubernetes-cli:latest
 
   envFrom:
     - secretRef:
         name: github-credentials
+    - secretRef:
+        name: dockerhub-credentials
 
   JCasC:
     configScripts:
@@ -21,6 +24,12 @@ controller:
                       username: "${GITHUB_USERNAME}"
                       password: "${GITHUB_TOKEN}"
                       description: "GitHub Credentials"
+                  - usernamePassword:
+                      scope: GLOBAL
+                      id: "dockerhub-credentials"
+                      username: "${DOCKERHUB_USERNAME}"
+                      password: "${DOCKERHUB_PASSWORD}"
+                      description: "DockerHub Credentials"
       jobs: |
         jobs:
           - script: >
@@ -31,9 +40,9 @@ controller:
                             git {
                                 remote {
                                     url 'https://github.com/OriTzadok-hub/Elta-Assignment.git'
-                                    credentialsId 'github'
+                                    credentials('github')
                                 }
-                                branches '*/main'
+                                branches 'main'
                                 scriptPath 'Jenkinsfile'
                             }
                         }

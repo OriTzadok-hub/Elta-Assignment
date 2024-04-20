@@ -1,7 +1,6 @@
 pipeline {
     agent {
         kubernetes {
-                    // Define the pod template for checkout
                     yaml '''
 apiVersion: v1
 kind: Pod
@@ -32,8 +31,6 @@ spec:
         }
     }
     environment {
-        // Define repository and image details
-        REPO_URL = 'https://github.com/OriTzadok-hub/Elta-Assignment.git'
         IMAGE_REPO = 'oriza/dotnetapp'
         IMAGE_TAG = 'latest'
         DOCKER_IMAGE = "${IMAGE_REPO}:${IMAGE_TAG}"
@@ -41,19 +38,12 @@ spec:
     }
 
     stages {
-        stage('Checkout Code') { 
-            steps {
-                // Checkout the latest code from the main branch
-                git url: REPO_URL, branch: 'main', credentialsId: 'github'
-            }
-        }
         stage('Build Docker Image') {
             steps {
                 container('docker') {
                     script {
                         sh 'dockerd &'
-                        sleep 10 // Wait for Docker daemon to start
-                        // This will use the credentials securely
+                        sleep 10
                         withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                             sh 'echo $DOCKER_PASSWORD | docker login --username $DOCKER_USER --password-stdin'
                         }
@@ -69,7 +59,6 @@ spec:
                     sh '''
                     curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
                     chmod u+x ./kubectl
-                    ./kubectl get pods -n devops
                     sh '''
                 }
             }
@@ -78,9 +67,8 @@ spec:
             steps {
                 script {
                     withKubeConfig([credentialsId: 'kubeconfig-credentials']) {
-                        // Apply Kubernetes manifests to the development namespace
-                        sh './kubectl apply -f ./Deployment/K8s/deployment.yml -n dev-namespace'
-                        sh './kubectl apply -f ./Deployment/K8s/service.yml -n dev-namespace'
+                        sh './kubectl apply -f ./Deployment/K8s/deployment.yml -n deploy'
+                        sh './kubectl apply -f ./Deployment/K8s/service.yml -n deploy'
                     }
                 }
             }
