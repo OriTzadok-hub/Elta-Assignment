@@ -33,8 +33,16 @@ To deploy this setup:
 3. Verify Jenkins is configured correctly by accessing the Jenkins UI and checking the pipeline job setup.
 4. Trigger the pipeline manually or via a GitHub webhook to start the build and deployment process.
 
-## Contributions
-Contributions are welcome. Please fork the repository and submit pull requests with your proposed changes.
+## Accessing the Web Application
+Once the Jenkins pipeline has successfully executed, the .NET Core web application will be accessible via a NodePort service on your Kubernetes cluster. Follow these steps to access the application:
+ 
+1. Retrieve the service information using the following `kubectl` command: ```bash kubectl get svc -n deploy ```
+Look for the NodePort assigned to your service in the output.
 
-## License
-Specify the license under which this project is made available, such as MIT or Apache 2.0.
+2. Open a web browser and navigate to `http://localhost:<NodePort>` where `<NodePort>` is the port number you obtained from the previous command.
+
+3. You should see a web page displaying "Hello World!" as shown in the accompanying screenshot.
+
+**Note**: Accessing the application through `localhost` will work if you are running the Kubernetes cluster locally. If your cluster is remote, replace `localhost` with the IP address or domain of the host running your Kubernetes cluster.
+
+
