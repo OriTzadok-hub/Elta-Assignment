@@ -1,7 +1,6 @@
 @echo off
 
 :: Create Kubernetes namespaces
-kubectl create namespace devops
 kubectl create namespace deploy
 
 :: Add Jenkins Helm repository and update
